@@ -16,7 +16,7 @@ using namespace std;
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
-
+void changeBoxColorBasedOnBounceRate();
 
 //some structures
 
@@ -62,6 +62,7 @@ int main()
 	init_opengl();
 	//Main loop
 	int done = 0;
+    changeBoxColorBasedOnBounceRate();
 	while (!done) {
 		//Process external events.
 		while (x11.getXPending()) {
@@ -84,7 +85,7 @@ Global::Global()
 	yres = 200;
 
 	w = 20.0f;
-	dir = 1.0f;
+	dir = 5.0f;
 	pos[0] = 0.0f + w;
 	pos[1] = yres / 2.0f;
 }
@@ -247,32 +248,33 @@ void init_opengl(void)
 	glClearColor(0.1, 0.1, 0.1, 1.0);
 }
 
-void physics()
-{
-	g.pos[0] += g.dir;
-	if (g.pos[0] >= (g.xres-g.w)) {
-		g.pos[0] = (g.xres-g.w);
-		g.dir = -g.dir;
-	}
-	if (g.pos[0] <= g.w) {
-		g.pos[0] = g.w;
-		g.dir = -g.dir;
-	}
-}
-
 void changeBoxColorBasedOnBounceRate()
 {
 	float bounceRate = g.xres * .15; 
 	glColor3ub(250 - bounceRate, 0, bounceRate);
 }
 
+void physics()
+{
+	g.pos[0] += g.dir;
+	if (g.pos[0] >= (g.xres-g.w)) {
+		g.pos[0] = (g.xres-g.w);
+		g.dir = -g.dir;
+        changeBoxColorBasedOnBounceRate();
+	}
+	if (g.pos[0] <= g.w) {
+		g.pos[0] = g.w;
+		g.dir = -g.dir;
+        changeBoxColorBasedOnBounceRate();
+	}
+}
+
+
 void render()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 	//Draw box.
 	glPushMatrix();
-	glColor3ub(150, 160, 220);
-	changeBoxColorBasedOnBounceRate();
 	glTranslatef(g.pos[0], g.pos[1], 0.0f);
 	glBegin(GL_QUADS);
 		glVertex2f(-g.w, -g.w);
